@@ -1,0 +1,22 @@
+{
+  "name": "trigger-autocall-cron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.11.13"
+  },
+  "devDependencies": {
+    "eslint": "^7.18.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
