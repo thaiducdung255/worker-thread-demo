@@ -7,7 +7,7 @@ const Customer = require('./customer.model')
 const {
    sleep, awakenCallTemplate, getCustomerChunk, autoCall,
 } = require('./helper')
-const { db } = require('./config')
+const { db, worker } = require('./config')
 
 const { toTime, fromTime } = workerData
 const fromExcludedTime = workerData.fromExcludedTime || null
@@ -28,17 +28,17 @@ connect(db.mongodbUrl, db.options, async () => {
 
          if (isInvalidTime) {
             // eslint-disable-next-line no-await-in-loop
-            const customers = await getCustomerChunk((workerData._id).toString())
+            const customers = await getCustomerChunk((workerData._id).toString(), worker.chunkSize)
 
             const sucessCallIds = []
-            parentPort.postMessage(`customer len: ${customers.length}`)
+            if (customers.length) parentPort.postMessage(`new chunk len: ${customers.length}`)
 
             for (let i = 0; i < customers.length; i += 1) {
                const customer = customers[i]
                // eslint-disable-next-line no-await-in-loop
                const isCalled = await autoCall(customer)
                if (isCalled) sucessCallIds.push(customer._id)
-               sleep(3000)
+               sleep(worker.callIntervalMs)
             }
 
             if (sucessCallIds.length) {
@@ -49,13 +49,12 @@ connect(db.mongodbUrl, db.options, async () => {
                {
                   isCalled: true,
                })
-               parentPort.postMessage(`2. updateCount: ${updateRes.nModified} | heap: ${process.memoryUsage().heapUsed / 1024 / 1024}`)
+
+               parentPort.postMessage(`updateCount: ${updateRes.nModified}`)
             }
          }
       }
-      sleep(3000)
-      parentPort.postMessage(`heap: ${process.memoryUsage().heapUsed / 1024 / 1024}`)
-   // eslint-disable-next-line no-constant-condition
+      sleep(worker.chunkDelayMs)
    } while (true)
 })
 

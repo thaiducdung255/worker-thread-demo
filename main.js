@@ -9,7 +9,7 @@ const Campaign = require('./campaign.model')
 
 connect(db.mongodbUrl, db.options, (err) => {
    if (err) {
-      console.log(73, { err })
+      process.stdout.write(`mongodb error: ${err.toString()}\n`)
    }
 
    let workers = []
@@ -35,8 +35,8 @@ connect(db.mongodbUrl, db.options, (err) => {
             }).lean()
 
             // eslint-disable-next-line no-loop-func
-            validCampaigns.forEach((validCampaign) => {
-               console.log(45, 'forking workers', validCampaign)
+            validCampaigns.forEach((validCampaign, workerId) => {
+               process.stdout.write(`forking worker: ${validCampaign.name}\n`)
 
                const worker = new Worker(
                   resolve(__dirname, 'worker.js'),
@@ -44,6 +44,7 @@ connect(db.mongodbUrl, db.options, (err) => {
                      workerData: {
                         ...validCampaign,
                         _id: validCampaign._id.toString(),
+                        workerId,
                      },
                   },
                )
@@ -51,24 +52,24 @@ connect(db.mongodbUrl, db.options, (err) => {
                workers.push(worker)
 
                worker.on('online', () => {
-                  console.log('worker is online')
+                  process.stdout.write(`worker ${worker.threadId} is online\n`)
                })
 
                worker.on('message', (message) => {
-                  console.log(`${worker.threadId}: ${message}`)
+                  process.stdout.write(`[${worker.threadId}]: ${message}\n`)
                })
 
                worker.on('exit', (code) => {
-                  console.log(`worker is exited: ${code}`)
+                  process.stdout.write(`worker ${worker.threadId} is exited: ${code}\n`)
                })
 
                worker.on('error', (error) => {
-                  console.log(`worker is error: ${error}`)
+                  process.stdout.write(`worker ${worker.threadId} is error: ${error}\n`)
                })
             })
          }
       } else if (workers.length) {
-         console.log(52, 'terminating workers')
+         process.stdout.write('terminating workers\n')
          workers.forEach((worker) => worker.terminate())
          workers = []
       }

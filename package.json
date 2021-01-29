@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start-multi-thread": "node main.js",
+    "start-mono-thread": "node main.mono.js"
   },
   "keywords": [],
   "author": "",

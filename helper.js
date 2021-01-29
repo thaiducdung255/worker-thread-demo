@@ -33,17 +33,17 @@ function awakenCallTemplate(callTemplateStr = '', customer = {}) {
 function autoCall(customer = {}) {
    // perform auto call
    return new Promise((resolve) => {
-      parentPort.postMessage(`cus_id: ${customer._id}`)
       const requestBody = {
-         phoneNumber: customer.phoneNumber,
+         phone: customer.phoneNumber,
+         provider: workerData.provider || 'mobile',
          text: awakenCallTemplate(workerData.template, customer),
          voice: 'female_south',
-         cusId: customer._id,
-         voiceSpeed: 1,
+         key: api.autoCall.keys[workerData.workerId] || api.autoCall.keys[0],
       }
 
+      parentPort.postMessage(`cus_id: ${customer._id} ${requestBody.key}`)
       axios.post(api.autoCall.url, requestBody).then((res) => {
-         if (res.status !== 200 || !res.data?.success) {
+         if (res.status !== 200 || res.data?.success !== 'true') {
             resolve(false)
          }
 
