@@ -10,4 +10,9 @@ module.exports = {
          useUnifiedTopology: true,
       },
    },
+   api: {
+      autoCall: {
+         url: process.env.AUTO_CALL_URL || 'http://localhost:3210',
+      },
+   },
 }

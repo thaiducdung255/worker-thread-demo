@@ -55,7 +55,7 @@ connect(db.mongodbUrl, db.options, (err) => {
                })
 
                worker.on('message', (message) => {
-                  console.log(`worker send a message: ${message}`)
+                  console.log(`${worker.threadId}: ${message}`)
                })
 
                worker.on('exit', (code) => {
