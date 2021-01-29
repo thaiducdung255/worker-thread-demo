@@ -3,7 +3,7 @@
 const { workerData, parentPort } = require('worker_threads')
 const { Types } = require('mongoose')
 const axios = require('axios')
-const { api } = require('./config')
+const { api, worker } = require('./config')
 
 const Customer = require('./customer.model')
 
@@ -54,10 +54,39 @@ function autoCall(customer = {}) {
    })
 }
 
-function getCustomerChunk(campaignId, size = 200) {
+function getCustomerChunk(campaignId, size = worker.chunkSize) {
    return Customer.find({
       isCalled: false,
       campaign: Types.ObjectId(campaignId),
+   }).limit(size).lean()
+}
+
+function getMixedCustomerChunk(campaignIds = [], size = worker.chunkSize) {
+   const currentTime = new Date().toISOString().split('T')[1].slice(0, 5)
+
+   return Customer.find({
+      isCalled: false,
+      campaign: {
+         $in: campaignIds.map((campaignId) => Types.ObjectId(campaignId)),
+      },
+      $or: [
+         {
+            fromTime: {
+               $lt: currentTime,
+            },
+            fromExcludedTime: {
+               $gt: currentTime,
+            },
+         },
+         {
+            toExcludedTime: {
+               $lt: currentTime,
+            },
+            toTime: {
+               $gt: currentTime,
+            },
+         },
+      ],
    }).limit(size).lean()
 }
 
@@ -66,4 +95,5 @@ module.exports = {
    getCustomerChunk,
    autoCall,
    awakenCallTemplate,
+   getMixedCustomerChunk,
 }

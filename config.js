@@ -20,5 +20,6 @@ module.exports = {
       callIntervalMs: Number(process.env.WORKER_CALL_INTERVAL_MS) || 500,
       chunkDelayMs: Number(process.env.WORKER_CHUNK_DELAY_MS) || 3000,
       chunkSize: Number(process.env.WORKER_CHUNK_SIZE) || 100,
+      checkIntervalMs: Number(process.env.WORKER_CHECK_INTERVAL_MS) || 3000,
    },
 }

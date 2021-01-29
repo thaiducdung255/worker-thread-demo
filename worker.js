@@ -14,7 +14,8 @@ const fromExcludedTime = workerData.fromExcludedTime || null
 const toExcludedTime = workerData.toExcludedTime || null
 
 connect(db.mongodbUrl, db.options, async () => {
-   do {
+   // eslint-disable-next-line no-constant-condition
+   while (true) {
       const now = new Date()
       now.setHours(now.getHours() + 7)
       const currentTime = now.toISOString().split('T')[1]
@@ -55,7 +56,7 @@ connect(db.mongodbUrl, db.options, async () => {
          }
       }
       sleep(worker.chunkDelayMs)
-   } while (true)
+   }
 })
 
 module.exports = {

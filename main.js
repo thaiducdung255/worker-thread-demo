@@ -73,5 +73,5 @@ connect(db.mongodbUrl, db.options, (err) => {
          workers.forEach((worker) => worker.terminate())
          workers = []
       }
-   }, 2000)
+   }, workers.checkIntervalMs)
 })
