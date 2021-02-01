@@ -61,32 +61,32 @@ function getCustomerChunk(campaignId, size = worker.chunkSize) {
    }).limit(size).lean()
 }
 
-function getMixedCustomerChunk(campaignIds = [], size = worker.chunkSize) {
-   const currentTime = new Date().toISOString().split('T')[1].slice(0, 5)
+async function getMixedCustomerChunk(campaigns = [], size = worker.chunkSize) {
+   const now = new Date()
+   now.setHours(now.getHours() + 7)
+   const exactCurrentTime = now.toISOString().split('T')[1].slice(0, 5)
+
+   const validCampaigns = campaigns.filter((campaign) => {
+      const {
+         fromTime, toTime,
+      } = campaign
+
+      const fromExcludedTime = campaign.fromExcludedTime || campaign.toTime
+      const toExcludedTime = campaign.toExcludedTime || campaign.fromTime
+
+      const firstCondition = fromTime <= exactCurrentTime && fromExcludedTime > exactCurrentTime
+      const secondCondition = toExcludedTime <= exactCurrentTime && toTime > exactCurrentTime
+      return firstCondition || secondCondition
+   })
+
+   console.log({ all: campaigns.length, valid: validCampaigns.length })
+   console.log({ ids: validCampaigns.map((campaign) => Types.ObjectId(campaign._id)) })
 
    return Customer.find({
       isCalled: false,
       campaign: {
-         $in: campaignIds.map((campaignId) => Types.ObjectId(campaignId)),
+         $in: validCampaigns.map((campaign) => Types.ObjectId(campaign._id)),
       },
-      $or: [
-         {
-            fromTime: {
-               $lt: currentTime,
-            },
-            fromExcludedTime: {
-               $gt: currentTime,
-            },
-         },
-         {
-            toExcludedTime: {
-               $lt: currentTime,
-            },
-            toTime: {
-               $gt: currentTime,
-            },
-         },
-      ],
    }).limit(size).lean()
 }
 
