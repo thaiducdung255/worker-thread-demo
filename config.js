@@ -2,10 +2,23 @@
 
 require('dotenv').config()
 
+let mongoUrl = ''
+const mongoUsername = process.env.DB_MONGODB_USERNAME
+const mongoPassword = process.env.DB_MONGODB_PASSWORD
+const mongoHost = process.env.DB_MONGODB_HOST || 'localhost'
+const mongoPort = process.env.DB_MONGODB_PORT || 27017
+const mongoDbName = process.env.DB_MONGODB_DB_NAME || 'TriggerService'
+
+if (mongoUsername && mongoPassword) {
+   mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDbName}`
+} else {
+   mongoUrl = `mongodb://${mongoHost}:${mongoPort}/${mongoDbName}`
+}
+
 module.exports = {
    db: {
-      mongodbUrl: process.env.DB_MONGODB_URL || 'mongodb://localhost:27017/TriggerService',
       options: {
+         mongoUrl,
          useNewUrlParser: true,
          useUnifiedTopology: true,
       },
