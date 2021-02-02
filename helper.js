@@ -81,9 +81,6 @@ async function getMixedCustomerChunk(campaigns = [], size = worker.chunkSize) {
       return firstCondition || secondCondition
    })
 
-   console.log({ all: campaigns.length, valid: validCampaigns.length })
-   console.log({ ids: validCampaigns.map((campaign) => Types.ObjectId(campaign._id)) })
-
    return Customer.find({
       isCalled: false,
       campaign: {

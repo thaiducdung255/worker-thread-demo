@@ -8,13 +8,13 @@ const mongoPassword = process.env.DB_MONGODB_PASSWORD
 const mongoHost = process.env.DB_MONGODB_HOST || 'localhost'
 const mongoPort = process.env.DB_MONGODB_PORT || 27017
 const mongoDbName = process.env.DB_MONGODB_DB_NAME || 'TriggerService'
+const mongoOptions = process.env.DB_MONGODB_OPTIONS || ''
 
 if (mongoUsername && mongoPassword) {
-   mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDbName}`
+   mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDbName}?${mongoOptions}`
 } else {
-   mongoUrl = `mongodb://${mongoHost}:${mongoPort}/${mongoDbName}`
+   mongoUrl = `mongodb://${mongoHost}:${mongoPort}/${mongoDbName}?${mongoOptions}`
 }
-
 module.exports = {
    db: {
       mongoUrl,
