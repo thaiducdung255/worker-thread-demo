@@ -17,8 +17,8 @@ if (mongoUsername && mongoPassword) {
 
 module.exports = {
    db: {
+      mongoUrl,
       options: {
-         mongoUrl,
          useNewUrlParser: true,
          useUnifiedTopology: true,
       },

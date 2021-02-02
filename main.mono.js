@@ -7,7 +7,7 @@ const Campaign = require('./campaign.model')
 const Customer = require('./customer.model')
 const { sleep, getMixedCustomerChunk, autoCall } = require('./helper')
 
-connect(db.mongodbUrl, db.options, async (err) => {
+connect(db.mongoUrl, db.options, async (err) => {
    if (err) {
       process.stdout.write(`mongodb error: ${err.toString()}\n`)
    }
@@ -34,34 +34,40 @@ connect(db.mongodbUrl, db.options, async (err) => {
                isEnabled: true,
             }).lean()
 
+            const campaignDict = {}
+
+            validCampaigns.forEach((campaign) => {
+               campaignDict[campaign._id] = campaign
+            })
+
             if (validCampaigns.length) {
                isIdle = false
                let customerChunk = []
-               const sucessCallIds = []
+               let successCallIds = []
 
                do {
                   // eslint-disable-next-line no-await-in-loop
                   customerChunk = await getMixedCustomerChunk(validCampaigns)
-                  console.log({ cuslen: customerChunk.lenth })
 
-                  for (let i = 0; i < customerChunk.lenth; i += 1) {
+                  for (let i = 0; i < customerChunk.length; i += 1) {
                      const customer = customerChunk[i]
                      // eslint-disable-next-line no-await-in-loop
-                     const isCalled = await autoCall(customer)
-                     if (isCalled) sucessCallIds.push(customer._id)
+                     const isCalled = await autoCall(customer, campaignDict[customer.campaign])
+                     if (isCalled) successCallIds.push(customer._id)
                      sleep(worker.callIntervalMs)
                   }
 
-                  if (sucessCallIds.length) {
+                  if (successCallIds.length) {
                      // eslint-disable-next-line no-await-in-loop
                      const updateRes = await Customer.updateMany({
-                        _id: { $in: sucessCallIds },
+                        _id: { $in: successCallIds },
                      },
                      {
                         isCalled: true,
                      })
 
                      console.log({ updateRes })
+                     successCallIds = []
                   }
 
                   sleep(worker.chunkDelayMs)

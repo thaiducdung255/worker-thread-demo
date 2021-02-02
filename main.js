@@ -4,10 +4,10 @@ const { connect } = require('mongoose')
 const { Worker } = require('worker_threads')
 const { resolve } = require('path')
 
-const { db } = require('./config')
+const { db, worker } = require('./config')
 const Campaign = require('./campaign.model')
 
-connect(db.mongodbUrl, db.options, (err) => {
+connect(db.mongoUrl, db.options, (err) => {
    if (err) {
       process.stdout.write(`mongodb error: ${err.toString()}\n`)
    }
@@ -36,9 +36,9 @@ connect(db.mongodbUrl, db.options, (err) => {
 
             // eslint-disable-next-line no-loop-func
             validCampaigns.forEach((validCampaign, workerId) => {
-               process.stdout.write(`forking worker: ${validCampaign.name}\n`)
+               process.stdout.write(`forking worker: ${validCampaign.name}, ${resolve(__dirname, 'worker.js')}\n`)
 
-               const worker = new Worker(
+               const currentWorker = new Worker(
                   resolve(__dirname, 'worker.js'),
                   {
                      workerData: {
@@ -49,29 +49,29 @@ connect(db.mongodbUrl, db.options, (err) => {
                   },
                )
 
-               workers.push(worker)
+               workers.push(currentWorker)
 
-               worker.on('online', () => {
-                  process.stdout.write(`worker ${worker.threadId} is online\n`)
+               currentWorker.on('online', () => {
+                  process.stdout.write(`worker ${currentWorker.threadId} is online\n`)
                })
 
-               worker.on('message', (message) => {
-                  process.stdout.write(`[${worker.threadId}]: ${message}\n`)
+               currentWorker.on('message', (message) => {
+                  process.stdout.write(`[${currentWorker.threadId}]: ${message}\n`)
                })
 
-               worker.on('exit', (code) => {
-                  process.stdout.write(`worker ${worker.threadId} is exited: ${code}\n`)
+               currentWorker.on('exit', (code) => {
+                  process.stdout.write(`worker ${currentWorker.threadId} is exited: ${code}\n`)
                })
 
-               worker.on('error', (error) => {
-                  process.stdout.write(`worker ${worker.threadId} is error: ${error}\n`)
+               currentWorker.on('error', (error) => {
+                  process.stdout.write(`worker ${currentWorker.threadId} is error: ${error}\n`)
                })
             })
          }
       } else if (workers.length) {
          process.stdout.write('terminating workers\n')
-         workers.forEach((worker) => worker.terminate())
+         workers.forEach((currentWorker) => currentWorker.terminate())
          workers = []
       }
-   }, workers.checkIntervalMs)
+   }, worker.checkIntervalMs)
 })

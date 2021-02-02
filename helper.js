@@ -30,18 +30,20 @@ function awakenCallTemplate(callTemplateStr = '', customer = {}) {
    return actualStr
 }
 
-function autoCall(customer = {}) {
+function autoCall(customer = {}, campaign) {
    // perform auto call
+   const campaignConfig = workerData || campaign
+
    return new Promise((resolve) => {
       const requestBody = {
          phone: customer.phoneNumber,
-         provider: workerData.provider || 'mobile',
-         text: awakenCallTemplate(workerData.template, customer),
+         provider: campaignConfig.provider || 'mobile',
+         text: awakenCallTemplate(campaignConfig.template, customer),
          voice: 'female_south',
-         key: api.autoCall.keys[workerData.workerId] || api.autoCall.keys[0],
+         key: api.autoCall.keys[campaignConfig.workerId] || api.autoCall.keys[0],
       }
 
-      parentPort.postMessage(`cus_id: ${customer._id} ${requestBody.key}`)
+      if (workerData) parentPort.postMessage(`cus_id: ${customer._id} ${requestBody.key}`)
       axios.post(api.autoCall.url, requestBody).then((res) => {
          if (res.status !== 200 || res.data?.success !== 'true') {
             resolve(false)

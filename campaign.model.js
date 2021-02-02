@@ -12,4 +12,5 @@ module.exports = model('Campaign', new Schema({
    toDate: String,
    template: String,
    isEnabled: Boolean,
+   provider: String,
 }), 'campaigns')

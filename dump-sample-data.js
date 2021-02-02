@@ -32,6 +32,7 @@ async function genRandomCampaigns(size = 10) {
          // eslint-disable-next-line no-template-curly-in-string
          template: 'FPT Telecom kinh chao quy khach ${_id}, chung toi xin thong bao hop dong ${extraInfo.contract} da den han thanh toan voi ma ${extraInfo.billNumber}.',
          isEnabled: true,
+         provider: 'mobile',
       })
 
       campaigns.push(campaign)
@@ -68,7 +69,7 @@ async function truncateDb() {
    await Customer.deleteMany({})
 }
 
-mongoose.connect(db.mongodbUrl, db.options, async (err) => {
+mongoose.connect(db.mongoUrl, db.options, async (err) => {
    if (err) return process.stdout.write(`err: ${err.toString()}`)
 
    await truncateDb()

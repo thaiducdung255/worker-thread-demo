@@ -13,7 +13,7 @@ const { toTime, fromTime } = workerData
 const fromExcludedTime = workerData.fromExcludedTime || null
 const toExcludedTime = workerData.toExcludedTime || null
 
-connect(db.mongodbUrl, db.options, async () => {
+connect(db.mongoUrl, db.options, async () => {
    // eslint-disable-next-line no-constant-condition
    while (true) {
       const now = new Date()
