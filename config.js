@@ -15,6 +15,7 @@ if (mongoUsername && mongoPassword) {
 } else {
    mongoUrl = `mongodb://${mongoHost}:${mongoPort}/${mongoDbName}?${mongoOptions}`
 }
+
 module.exports = {
    db: {
       mongoUrl,
