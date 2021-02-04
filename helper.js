@@ -21,8 +21,18 @@ function awakenCallTemplate(callTemplateStr = '', customer = {}) {
 
    if (parameters) {
       parameters.forEach((parameter) => {
-         // eslint-disable-next-line no-eval
-         const actualValue = eval('customer.'.concat(parameter.slice(2, -1))) || ''
+         const childParameters = parameter.slice(2, -1).split('.')
+         let actualValue = customer
+
+         for (let i = 0; i < childParameters.length; i += 1) {
+            actualValue = actualValue[childParameters[i]]
+
+            if (actualValue === undefined) {
+               actualValue = ''
+               break
+            }
+         }
+
          actualStr = actualStr.replace(parameter, actualValue)
       })
    }

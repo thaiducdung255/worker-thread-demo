@@ -65,16 +65,16 @@ test('awakenCallTemplate function should return a correct string', () => {
    test.toBe('this is a sample str: dungtd10 with HD11220900')
 })
 
-test('awakenCallTemplate function should throw an error if the property cannot resolved', () => {
+test('awakenCallTemplate function should ignore property that cause error', () => {
    // eslint-disable-next-line no-template-curly-in-string
-   const templateStr = 'this is a sample str: ${name} with ${extraInfo.bill_} and ${notExistKey.key}'
+   const templateStr = 'this is a sample str: ${name} with ${extraInfo.bill_name} and ${notExistKey.key}'
    const customer = {
-      name: 'dungtd10',
+      name: 'dungtd11',
       extraInfo: {
-         bill_: 'HD11220900',
+         bill_name: 'HD11220901',
       },
    }
 
-   const test = expect(() => awakenCallTemplate(templateStr, customer))
-   test.toThrow()
+   const test = expect(awakenCallTemplate(templateStr, customer))
+   test.toBe('this is a sample str: dungtd11 with HD11220901 and ')
 })
